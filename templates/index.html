@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<link rel="stylesheet" href='/static/main.css' />
+<script>
+$(document).ready(function() {
+    $("ul.tabs a").click(function() {
+        $(".pane div").hide();
+        $($(this).attr("href")).show();
+    });
+    $("ul.innertab a").click(function() {
+        $(".pane div div").hide();
+        $($(this).attr("href")).show();
+    });    
+
+})
+</script>
+    
+<body>
+{% with messages = get_flashed_messages() %}
+{%  if  messages %}
+{%  for  message  in  messages %} 
+<div class="message">
+<p>{{ message }}</p></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+ <ul class="tabs">
+    <li><a href="#tab1">Connection</a></li>
+    <li><a href="#tab2">Query Execute</a></li>
+    <li><a href="#tab3">Query Plan list</a></li>
+    <li><a href="#tab4">Analyze Query</a></li>
+
+</ul>
+<div class="pane">
+    <div id="tab1">
+        <h3>Database Connection</h3>
+        <form action="/dbconnect" method="post">
+
+          <label for="dbtype">Database Type:</label><br>
+          {%if edit %}
+          <select id="db_type" name="dbtype">
+            {%if session[edit][0]=="AGE"%}
+              <option value="{{session[edit][0]}}">AGE</option>
+              <option value="AGENSGRAPH">AGENSGRAPH</option>
+            {%elif session[edit][0]=="AGENSGRAPH"%}
+            <option value="{{session[edit][0]}}">AGENSGRAPH</option>
+            <option value="AGE">AGE</option>
+            {%endif%}
+            </select><br>
+          {% else %}
+          <select id="db_type" name="dbtype">
+          <option value="AGE">AGE</option>
+          <option value="AGENSGRAPH">AGENSGRAPH</option>
+        </select><br>
+          {%endif%}
+        <label for="dbver">Database Version:</label><br>
+        {%if edit %}
+        <input type="text" id="dbver" name="dbver" value="{{session[edit][1]}}"><br>
+        {% else %}
+        <input type="text" id="dbver" name="dbver" value=""><br>
+        {%endif%}
+        <label for="lname">Host:</label><br>
+        {%if edit %}
+        <input type="text" id="host" name="host" value="{{session[edit][2]}}"><br>
+        {% else %}
+        <input type="text" id="host" name="host" value=""><br>
+        {%endif%}
+        <label for="dbname">Database name:</label><br>
+        {%if edit %}
+        <input type="text" id="dbame" name="dbname" value="{{session[edit][3]}}"><br>
+        {% else %}
+        <input type="text" id="dbame" name="dbname" value=""><br>
+        {% endif %}
+        <label for="port">Port:</label><br>
+        {%if edit %}
+        <input type="text" id="port" name="port" value="{{session[edit][4]}}"><br>
+        {% else %}
+        <input type="text" id="port" name="port" value=""><br>
+        {% endif %}
+        <label for="uname">User name:</label><br>
+        {%if edit %}
+        <input type="text" id="uname" name="uname" value="{{session[edit][5]}}"><br>
+        {% else %}
+        <input type="text" id="uname" name="uname" value=""><br>
+        {% endif %}
+        <label for="password">Password:</label><br>
+        {%if edit %}
+        <input type="text" id="pname" name="pname" value="{{session[edit][6]}}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        {% else %}
+        <input type="text" id="pname" name="pname" value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        {% endif %}
+        {%if edit %}
+        <input type="submit" value="Save">
+        <input type="hidden" name="edit" value="{{edit}}">
+        {% else %}
+        <input type="submit" value="Connect">
+        <input type="hidden" name="edit" value="0">
+        {% endif %}
+      </form>
+      <ul class="innertab" style="display: table;list-style-type: none; margin: 0;padding: 0;">
+        <li style="float:left;padding:10px;"><a href="#db">Connected Databases</a></li>     
+    </ul>
+    <div id="db" style="display: none;">
+      <table  id="customers">
+        <tr>
+          <th>Database Type</th>
+          <th>Datbase Version</th>
+          <th>Host</th>
+          <th>Datbase Name</th>
+          <th>Port</th>
+          <th>User Name</th>
+          <th>Password</th>
+          <th></th>
+        </tr>
+       {% for k, v in session.items()%}
+          {%if k.startswith('AGE')%}
+          <tr>
+            {%for i in v%}
+              <td>{{i}}</td> 
+            {%endfor%}
+            <td><a href="/edit/{{k}}"><button>Edit</button></a></td> 
+          </tr>
+          {%endif%}
+        {%endfor%}
+      </table>
+    </div>
+    </div>
+    <div id="tab2" style="display:none;">
+
+        <table>
+            <tr>
+              <th>Query file upload</th>
+              <th>Execute query directly</th>
+            </tr>
+            <tr>
+              <td> <label for="dbtype">Database Type:</label><br>
+                <select id="db_name" name="db_name">
+                <option value="AGE-v2.14-v2.14">AGE-v2.14-v2.14</option>
+                <option value="AGE-v2.14-v2.14">AGE-v2.14-v2.15></option>
+                <option value="AGE-v2.14-v2.14">AGE-v2.14-v2.16</option>
+              </select><br></td>
+              <td><label for="dbtype">Database Type:</label><br>
+                <select id="db_name" name="db_name">
+                <option value="AGE-v2.14-v2.14">AGE-v2.14-v2.14</option>
+                <option value="AGE-v2.14-v2.14">AGE-v2.14-v2.15></option>
+                <option value="AGE-v2.14-v2.14">AGE-v2.14-v2.16</option>
+              </select><br></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><label for="myfile">Select a file:</label><br>
+                <input type="file" id="myfile" name="myfile"><br><br></td>
+              <td><label for="exeq">Write Query:</label>
+                <textarea id="exeq" name="exeq" rows="5" cols="50">
+                </textarea></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><button type="button">Load and execute query</button></td>
+              <td><button type="button">Execute query</button></td>
+            </tr>
+          </table>
+    </div>
+    <div id="tab3" style="display:none;">
+        <form>
+          <table>
+            <tr>
+            <td>
+            <label for="f1_db">Select File with Database:</label><br>
+            <select id="f1_db" name="f1_db">
+            <option value="file1_AGE-v2.14-v2.14">File1_AGE-v2.14-v2.14</option>
+         </select></td>
+         <td>
+         <label for="f2_db">Select File with Database:</label><br>
+         <select id="f2_db" name="f2_db">
+         <option value="file2_AGE-v2.14-v2.14">File2_AGE-v2.14-v2.14</option>
+          </select>
+        </td>
+        <td>
+         <br>
+          <button type="submit">Submit</button>
+        </td>
+        </tr>
+        </table>
+        </form>
+        <br><br>
+        <table id="com_table">
+            <tr>
+                <th>Query No</th>
+                <th>File1_executiontime</th>
+                <th>File2_executiontime</th>
+                <th>Faster </th>
+                <th>Percent </th>
+              </tr>
+              <tr>
+              </tr>
+              <tr></tr>
+        </table>
+    </div>
+    <div id="tab4" style="display:none;">
+        <ul class="innertab" style="display: table;list-style-type: none; margin: 0;padding: 0;">
+            <li style="float:left;padding:10px;"><a href="#compare">Compare Queries</a></li>
+            <li style="float:left;padding:10px;"><a href="#query_p">Query Plan textarea</a></li>      
+        </ul>
+        <div id="compare">
+          <form>
+            <table>
+              <tr>
+              <td>
+              <label for="s1_db">Select Database1:</label><br>
+              <select id="s1_db" name="s1_db">
+              <option value="file1_AGE-v2.14-v2.14">File1_AGE-v2.14-v2.14</option>
+           </select></td>
+           <td>
+           <label for="s1_q">Select Query no:</label><br>
+           <select id="s1_q" name="s1_db">
+           <option value="query1">001</option>
+            </select>
+          </td>
+            <td>
+            <label for="s2_db">Select Database2:</label><br>
+            <select id="s2_db" name="s2_db">
+            <option value="file1_AGE-v2.14-v2.14">File1_AGE-v2.14-v2.14</option>
+         </select></td>
+         <td>
+         <label for="s2_q">Select Query no:</label><br>
+         <select id="s2_q" name="s2_db">
+         <option value="query1">001</option>
+          </select>
+        </td>
+        <td>
+         <br>
+          <button type="submit">Submit</button>
+        </td>
+        </tr>
+        <tr>
+        <td>
+        <p>
+          select * from cypher('ldbc', $$ explain analyze
+          match (v:comment)
+          where v.id > 1374389535145 return v
+          $$) as (v agtype);
+        </p>
+        </td>
+        <td></td>
+        <td>
+          <p>
+            explain analyze
+            match (v:comment)
+            where v.id > 1374389535145
+            return v;
+          </p>
+        </td>
+        </tr>
+          </table>
+          </form>
+        </div>
+        <div id="query_p" >
+            <h1>i am here2</h1>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
